@@ -768,7 +768,7 @@ class HFRLTrainerBuilder(TrainerBuilderBase):
         callbacks = []
         return callbacks
 
-    def get_post_trainer_create_callbacks(self):
+    def get_post_trainer_create_callbacks(self, trainer):
         callbacks = []
         return callbacks
 
@@ -784,6 +784,7 @@ class HFRLTrainerBuilder(TrainerBuilderBase):
             warmup_steps=20,
             bf16=True,
             gradient_checkpointing=self.cfg.gradient_checkpointing,
+            gradient_checkpointing_kwargs={"use_reentrant": False},
             evaluation_strategy="steps",
             logging_first_step=True,
             logging_steps=1,
