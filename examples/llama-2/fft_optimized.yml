@@ -1,17 +1,21 @@
-base_model: NousResearch/Llama-2-7b-hf
+base_model: meta-llama/Llama-2-7b-chat-hf
 model_type: LlamaForCausalLM
 tokenizer_type: LlamaTokenizer
+is_llama_derived_model: true
 
 load_in_8bit: false
 load_in_4bit: false
 strict: false
 
 datasets:
-  - path: mhenrichsen/alpaca_2k_test
+  - path: ./my_data/consistency_finetune-data-v1-axolotl_fft.jsonl
     type: alpaca
+    conversation: llama-2
 dataset_prepared_path: last_run_prepared
 val_set_size: 0.05
-output_dir: ./out
+eval_sample_packing: False
+output_dir: ./consistency_finetune-data-v1-axolotl_fft
+hub_model_id: vijil/llama2-7b-chat-consistent_sft-v1.1
 
 sequence_len: 4096
 sample_packing: true
@@ -33,15 +37,15 @@ wandb_log_model:
 
 gradient_accumulation_steps: 1
 micro_batch_size: 1
-num_epochs: 1
+num_epochs: 4
 optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
-learning_rate: 0.0002
+learning_rate: 0.00005
 
 train_on_inputs: false
 group_by_length: false
-bf16: auto
-fp16:
+bf16: true
+fp16: false
 tf32: false
 
 gradient_checkpointing: true
@@ -56,13 +60,20 @@ flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
 flash_attn_fuse_mlp: true
 
-warmup_steps: 100
+warmup_ratio: 0.02 
 evals_per_epoch: 4
 eval_table_size:
 saves_per_epoch: 1
 debug:
-deepspeed: #deepspeed_configs/zero2.json # multi-gpu only
+deepspeed: deepspeed_configs/zero2.json # multi-gpu only
 weight_decay: 0.1
+adam_beta1: 0.9
+adam_beta2: 0.95
+adam_epsilon: 0.00000001
+max_grad_norm: 1.0
 fsdp:
 fsdp_config:
 special_tokens:
+  bos_token: "<s>"
+  eos_token: "</s>"
+  unk_token: "<unk>"
